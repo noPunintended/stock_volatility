@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 def cal_bid_spread(bid_price: float, offer_price: float) -> float:
@@ -97,6 +98,9 @@ def cal_series_log_return(book_df: pd.DataFrame) -> pd.DataFrame:
     book_df = cal_series_wap(book_df)
     book_df.loc[:, "log_return"] = np.log(book_df['wap']).diff()
 
+    # Replace second in bucket = 0 to NaN because there should be nothing to calculate from
+    book_df.loc[(book_df["seconds_in_bucket"] == 0), "log_return"] = np.NaN
+
     return book_df
 
 
@@ -153,3 +157,41 @@ def symmetric_mean_absolute_percentage_error(y_true: np.array, y_pred: np.array)
         2 * np.abs(y_pred - y_true) / (np.abs(y_true) + np.abs(y_pred)))
 
     return smape
+
+
+def evaluation(y_true: np.array, y_pred: np.array) -> dict:
+    ''' Function to calculate metrics for models evaluation
+    Calculate metrics for evaluate regression including:
+    residule, sum_error, mae, rmse, rmspe, smape, r2
+
+    Args:
+        y_true: array of actual value
+        y_pred: array of prediction by estimator(s)
+
+    Returns:
+        Dictionary of metrics
+    '''
+
+    residule = y_true - y_pred
+    # This call tell if the estimator over/under-predicted
+    sum_error = np.sum(residule)  
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = mean_squared_error(y_true, y_pred, squared=False)
+    rmspe = root_mean_squared_percentage_error(y_true, y_pred)
+    smape = symmetric_mean_absolute_percentage_error(y_true, y_pred)
+
+    # Again R2 is really problematic and should not be use in this instance,
+    # but the example notebook has them
+    r2 = r2_score(y_true, y_pred)
+
+    metrics_result = {
+        "residule": residule,
+        "sum_error": sum_error,
+        "mae": mae,
+        "rmse": rmse,
+        "rmspe": rmspe,
+        "smape": smape,
+        "r2": r2
+    }
+
+    return metrics_result
