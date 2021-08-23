@@ -106,8 +106,7 @@ def cal_realized_volatility(log_return_series: pd.Series) -> float:
     Calculate volatility between time 1 and time 2
 
     Args:
-        stock_price_t1: stock price at time 1
-        stock_price_t2: stock price at time 2
+        log_return_series: a series with log returns
 
     Returns:
         realized_volatility
@@ -119,7 +118,7 @@ def cal_realized_volatility(log_return_series: pd.Series) -> float:
     return realized_volatility
 
 
-def rmspe(y_true: np.array, y_pred: np.array) -> float:
+def root_mean_squared_percentage_error(y_true: np.array, y_pred: np.array) -> float:
     ''' Function to calculate root mean square percentage error
 
     Calculate root mean square percentage error between two array
@@ -135,3 +134,22 @@ def rmspe(y_true: np.array, y_pred: np.array) -> float:
     rmspe = np.sqrt(np.mean(np.square((y_true - y_pred) / y_true)))
 
     return rmspe
+
+
+def symmetric_mean_absolute_percentage_error(y_true: np.array, y_pred: np.array) -> float:
+    ''' Function to calculate symmetric mean absolute percentage error
+
+    Calculate symmetric mean absolute percentage error between two array
+
+    Args:
+        y_true: array of actual value
+        y_pred: array of prediction by estimator(s)
+
+    Returns:
+        symmetric mean absolute percentage error
+    '''
+
+    smape = 100/len(y_true) * np.sum(
+        2 * np.abs(y_pred - y_true) / (np.abs(y_true) + np.abs(y_pred)))
+
+    return smape
