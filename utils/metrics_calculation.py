@@ -166,7 +166,7 @@ def symmetric_mean_absolute_percentage_error(y_true: np.array, y_pred: np.array)
 def evaluation(y_true: np.array, y_pred: np.array) -> dict:
     ''' Function to calculate metrics for models evaluation
     Calculate metrics for evaluate regression including:
-    residule, sum_error, mae, rmse, rmspe, smape, r2
+    residual, average value, sum_error, mae, rmse, rmspe, smape, r2
 
     Args:
         y_true: array of actual value
@@ -176,12 +176,14 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
         Dictionary of metrics
     '''
 
-    residule = y_true - y_pred
-    # This call tell if the estimator over/under-predicted
+    residual = y_true - y_pred
+    # Average true and prediction
     y_true_mean = np.mean(y_true)
     y_pred_mean = np.mean(y_pred)
-    sum_error = np.sum(residule)  
+    # This call tell if the estimator over/under-predicted
+    sum_error = np.sum(residual)
     error_mean = y_true_mean - y_pred_mean
+
     mae = mean_absolute_error(y_true, y_pred)
     rmse = mean_squared_error(y_true, y_pred, squared=False)
     rmspe = root_mean_squared_percentage_error(y_true, y_pred, percentage=True)
@@ -192,7 +194,7 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
     r2 = r2_score(y_true, y_pred)
 
     metrics_result = {
-        "residule": residule,
+        "residual": residual,
         "true_average": y_true_mean,
         "prediction_average": y_pred_mean,
         "sum_error": sum_error,
