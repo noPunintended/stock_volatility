@@ -181,7 +181,7 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
     sum_error = np.sum(residule)  
     mae = mean_absolute_error(y_true, y_pred)
     rmse = mean_squared_error(y_true, y_pred, squared=False)
-    rmspe = root_mean_squared_percentage_error(y_true, y_pred, True)
+    rmspe = root_mean_squared_percentage_error(y_true, y_pred, percentage=True)
     smape = symmetric_mean_absolute_percentage_error(y_true, y_pred)
 
     # Again R2 is really problematic and should not be use in this instance,
