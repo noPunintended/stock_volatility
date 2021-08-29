@@ -122,7 +122,7 @@ def cal_realized_volatility(log_return_series: pd.Series) -> float:
     return realized_volatility
 
 
-def root_mean_squared_percentage_error(y_true: np.array, y_pred: np.array) -> float:
+def root_mean_squared_percentage_error(y_true: np.array, y_pred: np.array, percentage: bool = False) -> float:
     ''' Function to calculate root mean square percentage error
 
     Calculate root mean square percentage error between two array
@@ -136,6 +136,9 @@ def root_mean_squared_percentage_error(y_true: np.array, y_pred: np.array) -> fl
     '''
 
     rmspe = np.sqrt(np.mean(np.square((y_true - y_pred) / y_true)))
+  
+    if percentage is True:
+        rmspe = rmspe * 100
 
     return rmspe
 
