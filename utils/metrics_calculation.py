@@ -178,7 +178,10 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
 
     residule = y_true - y_pred
     # This call tell if the estimator over/under-predicted
+    y_true_mean = np.mean(y_true)
+    y_pred_mean = np.mean(y_pred)
     sum_error = np.sum(residule)  
+    error_mean = y_true_mean - y_pred_mean
     mae = mean_absolute_error(y_true, y_pred)
     rmse = mean_squared_error(y_true, y_pred, squared=False)
     rmspe = root_mean_squared_percentage_error(y_true, y_pred, percentage=True)
@@ -190,7 +193,10 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
 
     metrics_result = {
         "residule": residule,
+        "true_average": y_true_mean,
+        "prediction_average": y_pred_mean,
         "sum_error": sum_error,
+        "average_error": error_mean,
         "mae": mae,
         "rmse": rmse,
         "rmspe": rmspe,
