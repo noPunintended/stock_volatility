@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 def cal_bid_spread(bid_price: float, offer_price: float) -> float:
@@ -97,6 +98,9 @@ def cal_series_log_return(book_df: pd.DataFrame) -> pd.DataFrame:
     book_df = cal_series_wap(book_df)
     book_df.loc[:, "log_return"] = np.log(book_df['wap']).diff()
 
+    # Replace second in bucket = 0 to NaN because there should be nothing to calculate from
+    book_df.loc[(book_df["seconds_in_bucket"] == 0), "log_return"] = np.NaN
+
     return book_df
 
 
@@ -106,8 +110,7 @@ def cal_realized_volatility(log_return_series: pd.Series) -> float:
     Calculate volatility between time 1 and time 2
 
     Args:
-        stock_price_t1: stock price at time 1
-        stock_price_t2: stock price at time 2
+        log_return_series: a series with log returns
 
     Returns:
         realized_volatility
@@ -119,7 +122,7 @@ def cal_realized_volatility(log_return_series: pd.Series) -> float:
     return realized_volatility
 
 
-def rmspe(y_true: np.array, y_pred: np.array) -> float:
+def root_mean_squared_percentage_error(y_true: np.array, y_pred: np.array, percentage: bool = False) -> float:
     ''' Function to calculate root mean square percentage error
 
     Calculate root mean square percentage error between two array
@@ -127,6 +130,7 @@ def rmspe(y_true: np.array, y_pred: np.array) -> float:
     Args:
         y_true: array of actual value
         y_pred: array of prediction by estimator(s)
+        percentage: boolean to indicate true for percentege false for percentage/100
 
     Returns:
         root mean square percentage error
@@ -134,4 +138,72 @@ def rmspe(y_true: np.array, y_pred: np.array) -> float:
 
     rmspe = np.sqrt(np.mean(np.square((y_true - y_pred) / y_true)))
 
+    if percentage is True:
+        rmspe = rmspe * 100
+
     return rmspe
+
+
+def symmetric_mean_absolute_percentage_error(y_true: np.array, y_pred: np.array) -> float:
+    ''' Function to calculate symmetric mean absolute percentage error
+
+    Calculate symmetric mean absolute percentage error between two array
+
+    Args:
+        y_true: array of actual value
+        y_pred: array of prediction by estimator(s)
+
+    Returns:
+        symmetric mean absolute percentage error
+    '''
+
+    smape = 100/len(y_true) * np.sum(
+        2 * np.abs(y_pred - y_true) / (np.abs(y_true) + np.abs(y_pred)))
+
+    return smape
+
+
+def evaluation(y_true: np.array, y_pred: np.array) -> dict:
+    ''' Function to calculate metrics for models evaluation
+    Calculate metrics for evaluate regression including:
+    residual, average value, sum_error, mae, rmse, rmspe, smape, r2
+
+    Args:
+        y_true: array of actual value
+        y_pred: array of prediction by estimator(s)
+
+    Returns:
+        Dictionary of metrics
+    '''
+
+    residual = y_true - y_pred
+    # Average true and prediction
+    y_true_mean = np.mean(y_true)
+    y_pred_mean = np.mean(y_pred)
+    # This call tell if the estimator over/under-predicted
+    sum_error = np.sum(residual)
+    error_mean = y_true_mean - y_pred_mean
+
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = mean_squared_error(y_true, y_pred, squared=False)
+    rmspe = root_mean_squared_percentage_error(y_true, y_pred, percentage=True)
+    smape = symmetric_mean_absolute_percentage_error(y_true, y_pred)
+
+    # Again R2 is really problematic and should not be use in this instance,
+    # but the example notebook has them
+    r2 = r2_score(y_true, y_pred)
+
+    metrics_result = {
+        "residual": residual,
+        "true_average": y_true_mean,
+        "prediction_average": y_pred_mean,
+        "sum_error": sum_error,
+        "average_error": error_mean,
+        "mae": mae,
+        "rmse": rmse,
+        "rmspe": rmspe,
+        "smape": smape,
+        "r2": r2
+    }
+
+    return metrics_result
