@@ -130,13 +130,14 @@ def root_mean_squared_percentage_error(y_true: np.array, y_pred: np.array, perce
     Args:
         y_true: array of actual value
         y_pred: array of prediction by estimator(s)
+        percentage: boolean to indicate true for percentege false for percentage/100
 
     Returns:
         root mean square percentage error
     '''
 
     rmspe = np.sqrt(np.mean(np.square((y_true - y_pred) / y_true)))
-  
+
     if percentage is True:
         rmspe = rmspe * 100
 
@@ -180,7 +181,7 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
     sum_error = np.sum(residule)  
     mae = mean_absolute_error(y_true, y_pred)
     rmse = mean_squared_error(y_true, y_pred, squared=False)
-    rmspe = root_mean_squared_percentage_error(y_true, y_pred)
+    rmspe = root_mean_squared_percentage_error(y_true, y_pred, True)
     smape = symmetric_mean_absolute_percentage_error(y_true, y_pred)
 
     # Again R2 is really problematic and should not be use in this instance,
