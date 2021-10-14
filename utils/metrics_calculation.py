@@ -176,13 +176,13 @@ def evaluation(y_true: np.array, y_pred: np.array) -> dict:
         Dictionary of metrics
     '''
 
-    residual = y_true - y_pred
+    residual = y_pred - y_true
     # Average true and prediction
     y_true_mean = np.mean(y_true)
     y_pred_mean = np.mean(y_pred)
     # This call tell if the estimator over/under-predicted
     sum_error = np.sum(residual)
-    error_mean = y_true_mean - y_pred_mean
+    error_mean = y_pred_mean - y_true_mean
 
     mae = mean_absolute_error(y_true, y_pred)
     rmse = mean_squared_error(y_true, y_pred, squared=False)
